@@ -1,0 +1,11 @@
+id: telus
+displayName: TELUS
+defaultTone: calm, professional, assertive but respectful
+constraints:
+  - Never agree to terms not explicitly offered by provider
+  - Keep all statements factual and auditable
+  - Avoid legal threats or aggressive framing
+successCriteria:
+  - Lower monthly bill or improved plan value
+  - Waived one-time fees where possible
+  - Written confirmation requested before final acceptance
