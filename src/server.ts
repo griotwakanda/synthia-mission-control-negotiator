@@ -8,6 +8,7 @@ import { apiRouter } from './routes/api.js';
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,7 @@ const __dirname = path.dirname(__filename);
 app.use('/api', apiRouter);
 app.use(express.static(path.resolve(__dirname, '../public')));
 
-app.get('*', (_req, res) => {
+app.get('/{*any}', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '../public/index.html'));
 });
 
