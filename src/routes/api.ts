@@ -46,7 +46,7 @@ function voiceTwimlForMediaStream(): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
-    <Stream url="${xmlEscape(streamUrl)}" track="both_tracks" />
+    <Stream url="${xmlEscape(streamUrl)}" statusCallback="${xmlEscape(`${normalizeBaseUrl(twilio.webhookBaseUrl())}/api/twilio/stream-status`)}" statusCallbackMethod="POST" />
   </Connect>
 </Response>`;
 }
@@ -207,6 +207,20 @@ export function createApiRouter(bridge: RealtimeBridge): Router {
         text: `Call status update (${callSid}): ${callStatus}`
       });
     }
+
+    res.json({ ok: true });
+  });
+
+  apiRouter.post('/twilio/stream-status', (req, res) => {
+    const callSid = String(req.body?.CallSid ?? '');
+    const streamSid = String(req.body?.StreamSid ?? '');
+    const status = String(req.body?.StreamEvent ?? req.body?.StreamStatus ?? 'unknown');
+
+    appendTranscript({
+      ts: new Date().toISOString(),
+      speaker: 'SYSTEM',
+      text: `Media stream status (${callSid || 'n/a'} / ${streamSid || 'n/a'}): ${status}`
+    });
 
     res.json({ ok: true });
   });
