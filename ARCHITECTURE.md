@@ -1,49 +1,36 @@
 # ARCHITECTURE
 
-## MVP modules
-- `src/server.ts` — Express app + static Mission Control dashboard
-- `src/routes/api.ts` — health, transcript simulation, decision gate, prompt suggestion
-- `src/simulator/*` — local transcript simulator for no-credential development
-- `src/prompt/negotiationEngine.ts` — provider-aware negotiation prompt builder (English)
-- `src/config/providers.ts` + `providers/telus.yml` — provider config system
-- `src/integrations/twilio.ts` — Twilio interface adapter (placeholder)
-- `src/integrations/openai.ts` — OpenAI interface adapter (placeholder + simulated output)
+## Runtime modules
+- `src/server.ts` — Express + HTTP server + WebSocket upgrade handling
+- `src/routes/api.ts` — mission-control APIs, SSE transcript/audio streams, Twilio webhooks
+- `src/integrations/twilio.ts` — outbound call start/end via Twilio REST API
+- `src/integrations/realtimeBridge.ts` — Twilio Media Stream <-> OpenAI Realtime bidirectional audio bridge
+- `src/state/liveCallStore.ts` — in-memory call state + transcript + rolling audio chunk buffer for monitor
+- `public/index.html` — call controls, live transcript, live instruction box, and live audio monitor
 
-## Runtime modes
-1. **Simulation mode (default):** all flows run locally without external credentials.
-2. **Live mode (future):** Twilio webhooks + OpenAI responses drive real call guidance.
+## Call flow
+1. Dashboard calls `POST /api/call/start` with destination + objective.
+2. Server starts outbound call through Twilio REST API.
+3. Twilio requests `/api/twilio/voice` and receives TwiML with `<Connect><Stream ... track="both_tracks"/>`.
+4. Twilio opens WebSocket to `/api/twilio/media-stream`.
+5. Bridge opens OpenAI Realtime WebSocket and sets session:
+   - `voice: shimmer`
+   - English conversational instructions
+   - mandatory identity guardrail (Daniel's assistant)
+   - server VAD turn detection
+   - g711_ulaw audio in/out
+6. Inbound Twilio media frames are appended to OpenAI input buffer.
+7. OpenAI output audio deltas are streamed back to Twilio as outbound media.
+8. Transcript events and call state are pushed to UI via SSE.
+9. Audio chunks from both directions are mirrored to an SSE stream for live monitor playback.
 
-## Approval gate
-Decision states:
-- `APPROVE`
-- `REJECT`
-- `ASK_MORE`
+## Live direction model
+- `POST /api/call/instruction` updates shared live instruction state.
+- Active realtime sessions receive immediate `session.update` + injected user item:
+  - tells Synthia to adapt immediately
+  - if Daniel sends a specific decision sentence, Synthia should say it naturally
 
-API endpoint: `POST /api/decision`
-
-## Strategic voice roadmap (openai/openai-fm)
-
-### 1) Why `openai/openai-fm` matters
-- `openai/openai-fm` is a strong reference implementation for modern voice product patterns: turn handling, latency-sensitive streaming, evaluation loops, and operator tooling around voice quality.
-- It provides concrete design signals for how to move beyond "LLM text + telephony plumbing" into a robust voice experience lifecycle (build, test, tune, ship).
-- For Synthia, it reduces experimentation risk by giving us a known-good blueprint for voice interaction ergonomics and iteration speed.
-
-### 2) Voice Studio module (internal QA + presets)
-Add a **Voice Studio** module to Mission Control for internal teams:
-- Preset packs per provider/archetype (e.g., calm retention, firm escalation, empathy-first).
-- Side-by-side audition/testing of prompt + voice settings against canned negotiation scenarios.
-- QA scorecards (clarity, interruption recovery, policy compliance, conversion likelihood).
-- "Save as profile" to version and promote winning configurations from sandbox to default runtime.
-
-### 3) Upgrade path to micro-SaaS (post-validation with Daniel)
-- Phase 1: keep Synthia as an internal negotiation copilot to validate impact, process fit, and governance with Daniel.
-- Phase 2: productize the reusable core (prompt/voice presets, scenario replay, QA analytics, approval-gate traces) into a tenant-aware control plane.
-- Phase 3: package as a narrow micro-SaaS for small call teams that need guided negotiations, measurable QA, and safe human override.
-
-### 4) Suggested milestone sequence
-1. **Voice R&D baseline:** review/adapt patterns from `openai/openai-fm`; define latency + quality targets.
-2. **Voice Studio v0:** preset management, scenario replay, and manual QA scoring in dashboard.
-3. **Live pilot hardening:** run controlled Twilio/OpenAI pilot with audit logs and approval-gate telemetry.
-4. **Validation checkpoint with Daniel:** confirm KPI lift, operational readiness, and compliance posture.
-5. **Productization prep:** multi-tenant data model, billing hooks, role-based access, and onboarding templates.
-6. **Micro-SaaS beta:** invite-design-partner rollout with usage analytics and pricing tests.
+## Notes
+- State is in-memory (single-process MVP).
+- No secrets are sent to frontend.
+- `.env` drives all external credentials and runtime model selection.

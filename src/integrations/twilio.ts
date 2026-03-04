@@ -45,9 +45,13 @@ export class TwilioAdapter {
     }
   }
 
-  webhookUrl(path: string): string {
+  webhookBaseUrl(): string {
     this.assertConfigured();
-    return `${normalizeBaseUrl(env.TWILIO_WEBHOOK_BASE_URL!)}/api/twilio${path}`;
+    return normalizeBaseUrl(env.TWILIO_WEBHOOK_BASE_URL!);
+  }
+
+  webhookUrl(path: string): string {
+    return `${this.webhookBaseUrl()}/api/twilio${path}`;
   }
 
   async startOutboundCall(to: string): Promise<{ callSid: string; status: string }> {

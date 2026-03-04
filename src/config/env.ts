@@ -16,6 +16,7 @@ const EnvSchema = z.object({
   TWILIO_WEBHOOK_BASE_URL: z.string().url().optional(),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default('gpt-4o-mini'),
+  OPENAI_REALTIME_MODEL: z.string().default('gpt-4o-realtime-preview'),
   MISSION_CONTROL_API_TOKEN: z.string().optional()
 });
 

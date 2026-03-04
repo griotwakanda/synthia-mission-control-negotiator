@@ -16,119 +16,38 @@
         --good: #45d49a;
         --warn: #ff7d7d;
       }
-
       * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        background:
-          radial-gradient(1200px 400px at 10% -10%, #1c2f63 0%, transparent 50%),
-          radial-gradient(900px 300px at 90% 0%, #192748 0%, transparent 50%),
-          var(--bg);
-        color: var(--text);
-      }
-
+      body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); }
       .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 34px; }
+      .grid { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(360px, 1.2fr); gap: 16px; }
+      .card { background: #101933; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
       h1 { margin: 0 0 6px; font-size: 1.55rem; }
-      .sub { color: var(--muted); margin-bottom: 16px; }
-      .status {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.88rem;
-        color: var(--muted);
-        background: rgba(17, 28, 56, 0.75);
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 8px 12px;
-        margin-bottom: 18px;
-      }
-      .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
-
-      .grid {
-        display: grid;
-        grid-template-columns: minmax(320px, 1fr) minmax(360px, 1.2fr);
-        gap: 16px;
-      }
-
-      .card {
-        background: linear-gradient(180deg, rgba(18, 31, 64, 0.95) 0%, rgba(16, 25, 51, 0.95) 100%);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 16px;
-      }
-
       h2 { margin: 2px 0 14px; font-size: 1.04rem; }
+      .sub, .meta { color: var(--muted); }
       label { display: block; margin: 12px 0 6px; color: #c6d4fc; font-size: 0.9rem; }
-      input, textarea {
-        width: 100%;
-        border: 1px solid #34508f;
-        background: #0b1430;
-        color: var(--text);
-        border-radius: 10px;
-        padding: 10px 12px;
-        font: inherit;
-      }
-      textarea { min-height: 100px; resize: vertical; }
-
+      input, textarea, select { width: 100%; border: 1px solid #34508f; background: #0b1430; color: var(--text); border-radius: 10px; padding: 10px 12px; font: inherit; }
+      textarea { min-height: 96px; resize: vertical; }
       .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-      button {
-        border: 0;
-        border-radius: 10px;
-        padding: 10px 14px;
-        font-weight: 700;
-        color: #081125;
-        cursor: pointer;
-        background: #9eb9ff;
-      }
-      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      button { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; color: #081125; cursor: pointer; background: #9eb9ff; }
       .primary { background: var(--good); color: #022215; }
       .danger { background: var(--warn); color: #2b0505; }
-
-      .meta {
-        margin-top: 12px;
-        color: var(--muted);
-        font-size: 0.85rem;
-        line-height: 1.45;
-      }
-
-      .feed {
-        max-height: 560px;
-        overflow: auto;
-        border: 1px solid #2e4478;
-        border-radius: 12px;
-        background: #0b1430;
-      }
-      .line {
-        padding: 11px 12px;
-        border-bottom: 1px solid #1a2a53;
-      }
-      .line:last-child { border-bottom: 0; }
-      .line strong { color: #b8ccff; font-size: 0.88rem; letter-spacing: 0.01em; }
+      .feed { max-height: 430px; overflow: auto; border: 1px solid #2e4478; border-radius: 12px; background: #0b1430; }
+      .line { padding: 11px 12px; border-bottom: 1px solid #1a2a53; }
+      .line strong { color: #b8ccff; font-size: 0.88rem; }
       .line p { margin: 6px 0 0; }
       .empty { color: var(--muted); padding: 16px; }
-
-      .error {
-        margin-top: 10px;
-        color: #ffb5b5;
-        font-size: 0.9rem;
-      }
-
-      @media (max-width: 980px) {
-        .grid { grid-template-columns: 1fr; }
-      }
+      .error { margin-top: 10px; color: #ffb5b5; font-size: 0.9rem; }
+      @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
     <div class="wrap">
       <h1>📞 Synthia Live Mission Control</h1>
-      <div class="sub">Launch a real Twilio call, steer it live, and monitor speech events in real time.</div>
-      <div class="status"><span class="dot"></span><span id="statusText">Status: idle</span></div>
+      <div class="sub">Realtime Twilio call + OpenAI Realtime voice bridge with live direction and monitoring.</div>
 
       <div class="grid">
         <section class="card">
           <h2>Call Controls</h2>
-
           <label for="to">Phone number to call</label>
           <input id="to" type="text" placeholder="+15551234567" />
 
@@ -140,14 +59,24 @@
             <button class="danger" id="endBtn">End Call</button>
           </div>
 
-          <label for="instruction">Live instruction</label>
-          <textarea id="instruction" placeholder="Ask for the retention team if the first agent cannot match competitor pricing."></textarea>
-          <div class="row">
-            <button id="sendInstructionBtn">Send instruction</button>
-          </div>
+          <label for="instruction">Live instruction from Daniel</label>
+          <textarea id="instruction" placeholder="If they can do $65/mo, accept and confirm by email."></textarea>
+          <div class="row"><button id="sendInstructionBtn">Send instruction</button></div>
 
-          <div class="meta">
+          <h2 style="margin-top:18px">Live Audio Monitor</h2>
+          <div class="row">
+            <button id="monitorStartBtn">Start monitor</button>
+            <button id="monitorStopBtn">Stop monitor</button>
+            <label style="margin:0;display:flex;align-items:center;gap:8px;color:#c6d4fc">
+              Gain
+              <input id="gain" type="range" min="0" max="2" step="0.05" value="1" style="width:140px" />
+            </label>
+          </div>
+          <div class="meta" id="monitorStatus">Monitor: idle</div>
+
+          <div class="meta" style="margin-top:12px;line-height:1.45">
             <div><strong>Active call SID:</strong> <span id="callSid">—</span></div>
+            <div><strong>Active stream SID:</strong> <span id="streamSid">—</span></div>
             <div><strong>Last update:</strong> <span id="updatedAt">—</span></div>
           </div>
 
@@ -155,133 +84,126 @@
         </section>
 
         <section class="card">
-          <h2>Live Transcription Feed</h2>
-          <div class="feed" id="feed">
-            <div class="empty">Waiting for call events...</div>
-          </div>
+          <h2>Live Transcript</h2>
+          <div class="feed" id="feed"><div class="empty">Waiting for call events...</div></div>
         </section>
       </div>
     </div>
 
     <script>
       const el = {
-        to: document.getElementById('to'),
-        objective: document.getElementById('objective'),
-        instruction: document.getElementById('instruction'),
-        callBtn: document.getElementById('callBtn'),
-        endBtn: document.getElementById('endBtn'),
-        sendInstructionBtn: document.getElementById('sendInstructionBtn'),
-        statusText: document.getElementById('statusText'),
-        callSid: document.getElementById('callSid'),
-        updatedAt: document.getElementById('updatedAt'),
-        feed: document.getElementById('feed'),
-        error: document.getElementById('error')
+        to: document.getElementById('to'), objective: document.getElementById('objective'), instruction: document.getElementById('instruction'),
+        callBtn: document.getElementById('callBtn'), endBtn: document.getElementById('endBtn'), sendInstructionBtn: document.getElementById('sendInstructionBtn'),
+        callSid: document.getElementById('callSid'), streamSid: document.getElementById('streamSid'), updatedAt: document.getElementById('updatedAt'),
+        feed: document.getElementById('feed'), error: document.getElementById('error'), monitorStartBtn: document.getElementById('monitorStartBtn'),
+        monitorStopBtn: document.getElementById('monitorStopBtn'), monitorStatus: document.getElementById('monitorStatus'), gain: document.getElementById('gain')
       };
 
-      function setError(message = '') {
-        el.error.textContent = message;
-      }
+      let audioCtx; let gainNode; let nextPlayTime = 0; let audioSource;
+
+      function setError(message = '') { el.error.textContent = message; }
 
       function renderTranscript(lines) {
-        if (!lines || !lines.length) {
-          el.feed.innerHTML = '<div class="empty">Waiting for call events...</div>';
-          return;
-        }
-
-        el.feed.innerHTML = lines
-          .map((line) => {
-            const ts = new Date(line.ts).toLocaleTimeString();
-            return `<div class="line"><strong>${line.speaker} • ${ts}</strong><p>${line.text}</p></div>`;
-          })
-          .join('');
-
+        if (!lines || !lines.length) { el.feed.innerHTML = '<div class="empty">Waiting for call events...</div>'; return; }
+        el.feed.innerHTML = lines.map((line) => `<div class="line"><strong>${line.speaker} • ${new Date(line.ts).toLocaleTimeString()}</strong><p>${line.text}</p></div>`).join('');
         el.feed.scrollTop = el.feed.scrollHeight;
       }
 
       function applyState(state) {
-        el.statusText.textContent = `Status: ${state.callStatus || 'unknown'}`;
         el.callSid.textContent = state.activeCallSid || '—';
+        el.streamSid.textContent = state.activeStreamSid || '—';
         el.updatedAt.textContent = state.updatedAt ? new Date(state.updatedAt).toLocaleString() : '—';
-
         if (state.toPhoneNumber && !el.to.value) el.to.value = state.toPhoneNumber;
         if (state.objective && !el.objective.value) el.objective.value = state.objective;
         if (state.liveInstruction && !el.instruction.value) el.instruction.value = state.liveInstruction;
-
         renderTranscript(state.transcript || []);
       }
 
       async function postJson(url, body) {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body || {})
-        });
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data.error || `Request failed (${res.status})`);
-        }
+        if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
         return data;
       }
 
       async function loadInitialState() {
-        try {
-          const res = await fetch('/api/call/state');
-          const state = await res.json();
-          applyState(state);
-        } catch (err) {
-          setError(err.message || 'Failed to load initial state');
-        }
+        const res = await fetch('/api/call/state');
+        applyState(await res.json());
       }
 
-      function connectStream() {
+      function connectStateStream() {
         const source = new EventSource('/api/call/transcription/stream');
-        source.onmessage = (event) => {
-          try {
-            applyState(JSON.parse(event.data));
-            setError('');
-          } catch (err) {
-            setError('Stream parse error');
-          }
-        };
-        source.onerror = () => {
-          setError('Stream disconnected. Reconnecting...');
-        };
+        source.onmessage = (event) => { try { applyState(JSON.parse(event.data)); setError(''); } catch { setError('State stream parse error'); } };
+        source.onerror = () => setError('State stream disconnected. Reconnecting...');
       }
 
-      el.callBtn.onclick = async () => {
-        setError('');
-        try {
-          await postJson('/api/call/start', {
-            to: el.to.value.trim(),
-            objective: el.objective.value.trim()
-          });
-        } catch (err) {
-          setError(err.message || 'Failed to start call');
+      function ulawToPcm16(b64) {
+        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        const out = new Int16Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) {
+          let u = ~bytes[i];
+          const sign = (u & 0x80) ? -1 : 1;
+          const exponent = (u >> 4) & 0x07;
+          const mantissa = u & 0x0f;
+          let sample = ((mantissa << 3) + 0x84) << exponent;
+          sample = sign * (sample - 0x84);
+          out[i] = sample;
         }
-      };
+        return out;
+      }
 
-      el.endBtn.onclick = async () => {
-        setError('');
-        try {
-          await postJson('/api/call/end', {});
-        } catch (err) {
-          setError(err.message || 'Failed to end call');
-        }
-      };
+      function scheduleChunk(payload) {
+        if (!audioCtx) return;
+        const pcm16 = ulawToPcm16(payload);
+        const data = new Float32Array(pcm16.length);
+        for (let i = 0; i < pcm16.length; i++) data[i] = pcm16[i] / 32768;
 
-      el.sendInstructionBtn.onclick = async () => {
-        setError('');
-        try {
-          await postJson('/api/call/instruction', {
-            instruction: el.instruction.value.trim()
-          });
-        } catch (err) {
-          setError(err.message || 'Failed to send instruction');
-        }
-      };
+        const buffer = audioCtx.createBuffer(1, data.length, 8000);
+        buffer.getChannelData(0).set(data);
 
-      loadInitialState();
-      connectStream();
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        src.connect(gainNode);
+
+        const startAt = Math.max(audioCtx.currentTime + 0.01, nextPlayTime);
+        src.start(startAt);
+        nextPlayTime = startAt + buffer.duration;
+      }
+
+      function startMonitor() {
+        if (audioSource) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = Number(el.gain.value);
+        gainNode.connect(audioCtx.destination);
+        nextPlayTime = audioCtx.currentTime;
+
+        audioSource = new EventSource('/api/call/audio/stream');
+        audioSource.onmessage = (event) => {
+          try {
+            const chunk = JSON.parse(event.data);
+            if (chunk && chunk.payload) scheduleChunk(chunk.payload);
+          } catch {}
+        };
+        audioSource.onerror = () => { el.monitorStatus.textContent = 'Monitor: reconnecting...'; };
+        el.monitorStatus.textContent = 'Monitor: live';
+      }
+
+      function stopMonitor() {
+        if (audioSource) { audioSource.close(); audioSource = null; }
+        if (audioCtx) { audioCtx.close(); audioCtx = null; }
+        el.monitorStatus.textContent = 'Monitor: stopped';
+      }
+
+      el.callBtn.onclick = async () => { try { await postJson('/api/call/start', { to: el.to.value.trim(), objective: el.objective.value.trim() }); } catch (err) { setError(err.message); } };
+      el.endBtn.onclick = async () => { try { await postJson('/api/call/end', {}); } catch (err) { setError(err.message); } };
+      el.sendInstructionBtn.onclick = async () => { try { await postJson('/api/call/instruction', { instruction: el.instruction.value.trim() }); } catch (err) { setError(err.message); } };
+      el.monitorStartBtn.onclick = startMonitor;
+      el.monitorStopBtn.onclick = stopMonitor;
+      el.gain.oninput = () => { if (gainNode) gainNode.gain.value = Number(el.gain.value); };
+
+      loadInitialState().catch((e) => setError(e.message || 'Failed to load initial state'));
+      connectStateStream();
     </script>
   </body>
 </html>
