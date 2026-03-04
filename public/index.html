@@ -6,89 +6,461 @@
     <title>Synthia Mission Control</title>
     <style>
       :root {
-        --bg: #070b17;
-        --panel: #101933;
-        --panel-2: #121f40;
-        --text: #ebf0ff;
-        --muted: #9daace;
-        --line: #273866;
-        --accent: #78a8ff;
-        --good: #45d49a;
-        --warn: #ff7d7d;
+        --bg-0: #061811;
+        --bg-1: #081f16;
+        --panel: rgba(17, 46, 35, 0.62);
+        --panel-strong: rgba(14, 40, 30, 0.82);
+        --line: rgba(63, 126, 101, 0.35);
+        --line-strong: rgba(74, 167, 126, 0.58);
+        --text: #e8f7ef;
+        --muted: #8ca89c;
+        --accent: #21f3a1;
+        --accent-dim: #73cda6;
+        --user: #bccfc7;
+        --danger: #ff8e99;
       }
+
       * { box-sizing: border-box; }
-      body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); }
-      .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 34px; }
-      .grid { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(360px, 1.2fr); gap: 16px; }
-      .card { background: #101933; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-      h1 { margin: 0 0 6px; font-size: 1.55rem; }
-      h2 { margin: 2px 0 14px; font-size: 1.04rem; }
-      .sub, .meta { color: var(--muted); }
-      label { display: block; margin: 12px 0 6px; color: #c6d4fc; font-size: 0.9rem; }
-      input, textarea, select { width: 100%; border: 1px solid #34508f; background: #0b1430; color: var(--text); border-radius: 10px; padding: 10px 12px; font: inherit; }
-      textarea { min-height: 96px; resize: vertical; }
-      .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-      button { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; color: #081125; cursor: pointer; background: #9eb9ff; }
-      .primary { background: var(--good); color: #022215; }
-      .danger { background: var(--warn); color: #2b0505; }
-      .feed { max-height: 430px; overflow: auto; border: 1px solid #2e4478; border-radius: 12px; background: #0b1430; }
-      .line { padding: 11px 12px; border-bottom: 1px solid #1a2a53; }
-      .line strong { color: #b8ccff; font-size: 0.88rem; }
-      .line p { margin: 6px 0 0; }
-      .empty { color: var(--muted); padding: 16px; }
-      .error { margin-top: 10px; color: #ffb5b5; font-size: 0.9rem; }
-      @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+      html, body { min-height: 100%; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 50% 12%, rgba(33, 243, 161, 0.18), transparent 48%),
+          radial-gradient(circle at 10% 90%, rgba(28, 146, 106, 0.14), transparent 42%),
+          linear-gradient(180deg, var(--bg-1), var(--bg-0));
+        letter-spacing: 0.01em;
+      }
+
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 18px 30px;
+      }
+
+      .hero {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3.35rem);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+      }
+
+      .hero p {
+        margin: 9px 0 0;
+        color: var(--accent-dim);
+        text-transform: uppercase;
+        font-size: 0.95rem;
+        letter-spacing: 0.2em;
+      }
+
+      .panel {
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: linear-gradient(170deg, rgba(22, 56, 43, 0.74), rgba(10, 31, 24, 0.72));
+        backdrop-filter: blur(12px);
+        box-shadow:
+          inset 0 1px 0 rgba(170, 239, 203, 0.08),
+          0 0 0 1px rgba(24, 83, 61, 0.22),
+          0 14px 38px rgba(0, 0, 0, 0.36),
+          0 0 38px rgba(16, 216, 141, 0.09);
+        padding: 18px;
+      }
+
+      .field { margin-bottom: 16px; }
+      .field:last-child { margin-bottom: 0; }
+
+      label,
+      .section-title {
+        display: block;
+        color: #d2ece0;
+        margin: 0 0 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .input-shell {
+        display: flex;
+        align-items: stretch;
+        border-radius: 13px;
+        border: 1px solid rgba(73, 142, 113, 0.42);
+        background: rgba(10, 35, 26, 0.6);
+        overflow: hidden;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .input-shell:focus-within,
+      textarea:focus {
+        border-color: var(--line-strong);
+        box-shadow: 0 0 0 3px rgba(30, 210, 137, 0.12), 0 0 24px rgba(33, 243, 161, 0.15);
+      }
+
+      .prefix {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 12px;
+        border-right: 1px solid rgba(73, 142, 113, 0.35);
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      input, textarea {
+        width: 100%;
+        border: 0;
+        color: var(--text);
+        font: inherit;
+        background: transparent;
+        outline: none;
+      }
+
+      input::placeholder, textarea::placeholder { color: #709083; }
+
+      #to {
+        padding: 0 14px;
+        height: 52px;
+        font-size: 1.5rem;
+        letter-spacing: 0.08em;
+      }
+
+      .phone-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        color: var(--accent);
+        font-size: 1.15rem;
+      }
+
+      textarea {
+        min-height: 108px;
+        padding: 14px;
+        resize: vertical;
+        border-radius: 13px;
+        border: 1px solid rgba(73, 142, 113, 0.42);
+        background: rgba(10, 35, 26, 0.6);
+      }
+
+      .transcription-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .pill {
+        color: var(--accent);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .pill::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.45; transform: scale(0.82); }
+      }
+
+      .feed {
+        position: relative;
+        max-height: 355px;
+        min-height: 220px;
+        overflow: auto;
+        border-radius: 14px;
+        border: 1px solid rgba(74, 167, 126, 0.45);
+        background: linear-gradient(180deg, rgba(10, 38, 28, 0.7), rgba(7, 25, 19, 0.8));
+        box-shadow: inset 0 1px 1px rgba(171, 241, 206, 0.05), 0 0 18px rgba(33, 243, 161, 0.13);
+        padding: 14px 14px 62px;
+      }
+
+      .feed .empty { color: var(--muted); padding: 4px 2px; }
+
+      .line {
+        margin: 0 0 13px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .line strong {
+        font-size: 0.73rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .line p {
+        margin: 0;
+        font-size: 1.05rem;
+        line-height: 1.45;
+      }
+
+      .line.ai strong { color: var(--accent-dim); }
+      .line.user { align-items: flex-end; }
+      .line.user strong,
+      .line.user p { color: var(--user); text-align: right; }
+
+      .wave {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 56px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 5px;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(7, 25, 19, 0), rgba(7, 25, 19, 0.92) 56%);
+      }
+
+      .wave span {
+        width: 6px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 7px rgba(33, 243, 161, 0.62);
+        animation: bars 1.1s ease-in-out infinite;
+      }
+
+      .wave span:nth-child(1) { height: 12px; animation-delay: 0s; }
+      .wave span:nth-child(2) { height: 24px; animation-delay: 0.1s; }
+      .wave span:nth-child(3) { height: 31px; animation-delay: 0.2s; }
+      .wave span:nth-child(4) { height: 17px; animation-delay: 0.3s; }
+      .wave span:nth-child(5) { height: 28px; animation-delay: 0.4s; }
+      .wave span:nth-child(6) { height: 18px; animation-delay: 0.5s; }
+
+      @keyframes bars {
+        0%, 100% { transform: scaleY(0.45); opacity: 0.7; }
+        50% { transform: scaleY(1); opacity: 1; }
+      }
+
+      .instruction-shell { display: flex; align-items: stretch; }
+      #instruction {
+        min-height: 48px;
+        height: 48px;
+        max-height: 90px;
+        border-radius: 13px 0 0 13px;
+        border-right: 0;
+      }
+
+      #sendInstructionBtn {
+        border: 1px solid rgba(73, 142, 113, 0.42);
+        border-left: 0;
+        border-radius: 0 13px 13px 0;
+        width: 58px;
+        background: rgba(12, 39, 29, 0.9);
+        color: var(--accent);
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+
+      .monitor {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(73, 142, 113, 0.34);
+        background: rgba(11, 37, 28, 0.63);
+        padding: 12px 14px;
+        margin-bottom: 16px;
+      }
+
+      .monitor-left { display: flex; align-items: center; gap: 10px; }
+      .mic-pill {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(73, 142, 113, 0.48);
+        background: rgba(14, 49, 36, 0.8);
+        color: var(--accent);
+        font-size: 0.9rem;
+      }
+
+      .monitor-right { display: flex; align-items: center; gap: 8px; flex: 1; max-width: 280px; }
+      .icon { color: var(--muted); font-size: 0.9rem; }
+
+      #gain {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(62, 105, 87, 0.5);
+        border: 1px solid rgba(73, 142, 113, 0.35);
+      }
+
+      #gain::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 0;
+        background: var(--accent);
+        box-shadow: 0 0 10px rgba(33, 243, 161, 0.6);
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      #callBtn,
+      #endBtn {
+        height: 54px;
+        border-radius: 13px;
+        border: 1px solid rgba(73, 142, 113, 0.35);
+        font-size: 1.65rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+      }
+
+      #callBtn {
+        color: #0a251b;
+        background: linear-gradient(180deg, #26f2a6, #17db91);
+        box-shadow: 0 0 20px rgba(33, 243, 161, 0.28);
+      }
+
+      #endBtn {
+        background: rgba(11, 38, 29, 0.74);
+        color: #dbe8e1;
+      }
+
+      #monitorStartBtn,
+      #monitorStopBtn {
+        border-radius: 10px;
+        border: 1px solid rgba(73, 142, 113, 0.42);
+        background: rgba(13, 41, 31, 0.86);
+        color: #cae2d8;
+        padding: 7px 10px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .meta {
+        color: var(--muted);
+        margin-top: 10px;
+        display: grid;
+        gap: 4px;
+        font-size: 0.88rem;
+      }
+
+      .meta strong { color: #c8e7da; }
+
+      .error {
+        margin-top: 12px;
+        color: #ffbbc4;
+        font-size: 0.9rem;
+        min-height: 20px;
+      }
+
+      @media (max-width: 760px) {
+        .wrap { padding-top: 30px; }
+        #to { font-size: 1.15rem; }
+        .controls { grid-template-columns: 1fr; }
+        .monitor { flex-direction: column; align-items: stretch; }
+        .monitor-right { max-width: none; }
+      }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <h1>📞 Synthia Live Mission Control</h1>
-      <div class="sub">Realtime Twilio call + OpenAI Realtime voice bridge with live direction and monitoring.</div>
+    <main class="wrap">
+      <header class="hero">
+        <h1>Mission Control</h1>
+        <p>Ultra-Minimalist AI Voice Assistant</p>
+      </header>
 
-      <div class="grid">
-        <section class="card">
-          <h2>Call Controls</h2>
-          <label for="to">Phone number to call</label>
-          <input id="to" type="text" placeholder="+15551234567" />
-
-          <label for="objective">Call objective</label>
-          <textarea id="objective" placeholder="Negotiate a lower monthly bill and remove activation fees."></textarea>
-
-          <div class="row">
-            <button class="primary" id="callBtn">Call</button>
-            <button class="danger" id="endBtn">End Call</button>
+      <section class="panel">
+        <div class="field">
+          <label for="to">Phone Number</label>
+          <div class="input-shell">
+            <div class="prefix">+1 <span aria-hidden="true">▾</span></div>
+            <input id="to" type="text" placeholder="(555) 000-0000" />
+            <div class="phone-icon" aria-hidden="true">☎</div>
           </div>
+        </div>
 
-          <label for="instruction">Live instruction from Daniel</label>
-          <textarea id="instruction" placeholder="If they can do $65/mo, accept and confirm by email."></textarea>
-          <div class="row"><button id="sendInstructionBtn">Send instruction</button></div>
+        <div class="field">
+          <label for="objective">System Prompt &amp; Instructions</label>
+          <textarea id="objective" placeholder="Define the AI's persona, goals, and constraints for this call..."></textarea>
+        </div>
 
-          <h2 style="margin-top:18px">Live Audio Monitor</h2>
-          <div class="row">
+        <div class="field">
+          <div class="transcription-header">
+            <span class="section-title" style="margin:0">Live Transcription</span>
+            <span class="pill">Listening</span>
+          </div>
+          <div class="feed" id="feed">
+            <div class="empty">Waiting for call events...</div>
+            <div class="wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="instruction">Live Instructions</label>
+          <div class="instruction-shell">
+            <textarea id="instruction" placeholder="Send real-time prompts to the AI..."></textarea>
+            <button id="sendInstructionBtn" title="Send instruction" aria-label="Send instruction">➤</button>
+          </div>
+        </div>
+
+        <div class="monitor">
+          <div class="monitor-left">
+            <span class="mic-pill" aria-hidden="true">🎙</span>
+            <div id="monitorStatus">Monitor: idle</div>
             <button id="monitorStartBtn">Start monitor</button>
             <button id="monitorStopBtn">Stop monitor</button>
-            <label style="margin:0;display:flex;align-items:center;gap:8px;color:#c6d4fc">
-              Gain
-              <input id="gain" type="range" min="0" max="2" step="0.05" value="1" style="width:140px" />
-            </label>
           </div>
-          <div class="meta" id="monitorStatus">Monitor: idle</div>
-
-          <div class="meta" style="margin-top:12px;line-height:1.45">
-            <div><strong>Active call SID:</strong> <span id="callSid">—</span></div>
-            <div><strong>Active stream SID:</strong> <span id="streamSid">—</span></div>
-            <div><strong>Last update:</strong> <span id="updatedAt">—</span></div>
+          <div class="monitor-right">
+            <span class="icon">🔉</span>
+            <input id="gain" type="range" min="0" max="2" step="0.05" value="1" aria-label="Gain" />
+            <span class="icon">🔊</span>
           </div>
+        </div>
 
-          <div class="error" id="error"></div>
-        </section>
+        <div class="controls">
+          <button id="callBtn">▶ Start Call</button>
+          <button id="endBtn">📞 End Call</button>
+        </div>
 
-        <section class="card">
-          <h2>Live Transcript</h2>
-          <div class="feed" id="feed"><div class="empty">Waiting for call events...</div></div>
-        </section>
-      </div>
-    </div>
+        <div class="meta">
+          <div><strong>Active call SID:</strong> <span id="callSid">—</span></div>
+          <div><strong>Active stream SID:</strong> <span id="streamSid">—</span></div>
+          <div><strong>Last update:</strong> <span id="updatedAt">—</span></div>
+        </div>
+
+        <div class="error" id="error"></div>
+      </section>
+    </main>
 
     <script>
       const el = {
@@ -103,9 +475,26 @@
 
       function setError(message = '') { el.error.textContent = message; }
 
+      function formatSpeaker(line) {
+        const raw = String(line?.speaker || '').trim();
+        const lower = raw.toLowerCase();
+        if (lower.includes('assistant') || lower.includes('ai') || lower.includes('agent')) return { label: 'AI Assistant', cls: 'ai' };
+        return { label: raw || 'User', cls: 'user' };
+      }
+
       function renderTranscript(lines) {
-        if (!lines || !lines.length) { el.feed.innerHTML = '<div class="empty">Waiting for call events...</div>'; return; }
-        el.feed.innerHTML = lines.map((line) => `<div class="line"><strong>${line.speaker} • ${new Date(line.ts).toLocaleTimeString()}</strong><p>${line.text}</p></div>`).join('');
+        const wave = '<div class="wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>';
+        if (!lines || !lines.length) {
+          el.feed.innerHTML = '<div class="empty">Waiting for call events...</div>' + wave;
+          return;
+        }
+
+        const content = lines.map((line) => {
+          const speaker = formatSpeaker(line);
+          return `<div class="line ${speaker.cls}"><strong>${speaker.label} • ${new Date(line.ts).toLocaleTimeString()}</strong><p>${line.text}</p></div>`;
+        }).join('');
+
+        el.feed.innerHTML = content + wave;
         el.feed.scrollTop = el.feed.scrollHeight;
       }
 
