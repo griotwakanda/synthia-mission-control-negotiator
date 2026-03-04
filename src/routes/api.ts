@@ -26,20 +26,25 @@ function xmlEscape(value: string): string {
 
 function twimlVoiceLoop(): string {
   const state = getLiveCallState();
-  const objective = state.objective || 'Confirm account options and seek the lowest possible monthly total.';
-  const instruction = state.liveInstruction || 'Be polite, stay concise, and ask follow-up questions only when needed.';
+  const objective = state.objective || 'discussing plan options and finding the best monthly value';
+  const instruction = state.liveInstruction || 'be polite, concise, and ask only one question at a time';
 
-  const prompt = [
-    `Mission objective: ${objective}`,
-    `Current mission control instruction: ${instruction}`,
-    'Please state your latest offer or question after the tone.'
+  const intro = [
+    "Hello, this is Synthia, Daniel's assistant.",
+    `I'm calling regarding ${objective}.`,
+    'Could you please help me with the best available option today?'
+  ].join(' ');
+
+  const followUp = [
+    `Instruction for this step: ${instruction}.`,
+    'Please share your latest offer or question after the tone.'
   ].join(' ');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say voice="alice">${xmlEscape(prompt)}</Say>
+  <Say voice="alice">${xmlEscape(intro)}</Say>
   <Gather input="speech" speechTimeout="auto" action="/api/twilio/voice/speech" method="POST">
-    <Say voice="alice">Listening now.</Say>
+    <Say voice="alice">${xmlEscape(followUp)}</Say>
   </Gather>
   <Redirect method="POST">/api/twilio/voice</Redirect>
 </Response>`;
