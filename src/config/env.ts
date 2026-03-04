@@ -17,6 +17,7 @@ const EnvSchema = z.object({
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default('gpt-4o-mini'),
   OPENAI_REALTIME_MODEL: z.string().default('gpt-4o-realtime-preview'),
+  OPENAI_REALTIME_VOICE: z.string().default('shimmer'),
   MISSION_CONTROL_API_TOKEN: z.string().optional()
 });
 

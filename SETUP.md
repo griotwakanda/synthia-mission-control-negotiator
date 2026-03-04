@@ -22,6 +22,7 @@ Set:
 - `TWILIO_WEBHOOK_BASE_URL=https://<public-host>`
 - `OPENAI_API_KEY`
 - `OPENAI_REALTIME_MODEL=gpt-4o-realtime-preview` (or your approved realtime model)
+- `OPENAI_REALTIME_VOICE=shimmer` (set any supported realtime voice for quick A/B tests)
 
 ## 4) Run
 ```bash

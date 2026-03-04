@@ -22,6 +22,7 @@ TWILIO_PHONE_NUMBER=+1...
 TWILIO_WEBHOOK_BASE_URL=https://abc123.ngrok-free.app
 OPENAI_API_KEY=...
 OPENAI_REALTIME_MODEL=gpt-4o-realtime-preview
+OPENAI_REALTIME_VOICE=shimmer
 ```
 Restart app after env changes.
 
